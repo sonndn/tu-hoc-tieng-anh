@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<!-- Hàng rào của trình duyệt: trang chỉ được gọi tới nơi ghi điểm (Google Apps Script) và chính thư mục của nó; không tải mã, ảnh, phông chữ từ nơi khác. Địa chỉ 127.0.0.1/localhost chỉ dùng khi chạy bài kiểm tra. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com http://127.0.0.1:* http://localhost:*; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Góc tự học tiếng Anh</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#F4F6FA;--card:#FFFFFF;--line:#E5E7EB;--line2:#D1D5DB;--ink:#111827;--ink2:#374151;--muted:#4B5563;--accent:#1D4ED8;--tint:#E3EAFB;--ok:#15803D;--okbg:#DCFCE7;--okink:#14532D;--bad:#B91C1C;--badbg:#FEF2F2;--shadowink:#9A3412;--shadowbg:#FFF7ED;--soft:#F9FAFB}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Arimo,Arial,"Helvetica Neue",sans-serif;overflow-wrap:break-word;overflow-wrap:anywhere}
+a{color:var(--accent)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+img,svg{max-width:100%;height:auto}
+[hidden]{display:none!important}
+.sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.muted{color:var(--muted)}
+
+header.top{background:var(--card);border-bottom:1px solid var(--line)}
+.top-in{max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px}
+.mark{width:44px;height:44px;border-radius:4px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;flex:none}
+.brand{display:flex;flex-direction:column;gap:2px;flex:1 1 240px;min-width:0}
+.brand .t{font-size:18px;font-weight:700;line-height:1.3}
+.brand .s{font-size:13px;color:var(--muted)}
+.voice{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.voice .lab{font-size:13px;color:var(--muted)}
+.vchip{min-height:32px;padding:4px 10px;border-radius:3px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:4px;overflow-wrap:anywhere;max-width:100%}
+.vchip.ok{background:var(--okbg);color:var(--okink)}
+.vchip.no{background:var(--badbg);color:var(--bad)}
+.vchip.wait{background:#F3F4F6;color:var(--ink2);font-weight:400}
+.vhint{flex:1 1 100%;margin:0;font-size:12.5px;color:var(--muted)}
+.voice .vchip,.voice .btn{flex:none}
+.btn{min-height:44px;min-width:44px;padding:6px 14px;border-radius:4px;border:1px solid var(--line2);background:var(--card);color:var(--ink);font-size:14px;line-height:1.25;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none;text-align:center}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn[disabled]{opacity:.6;cursor:default}
+
+main{max-width:1200px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.demo{padding:10px 14px;border:2px dashed #B45309;background:#FFFBEB;color:#78350F;border-radius:6px;font-weight:700}
+.cont{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:22px 24px;display:flex;flex-wrap:wrap;align-items:center;gap:16px 24px}
+.cont .info{flex:999 1 380px;min-width:0;display:flex;flex-direction:column;gap:8px}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.cont h1{margin:0;font-size:24px;line-height:1.25}
+.cont .meta{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:14px;color:var(--muted)}
+.pbar{height:8px;border-radius:2px;background:var(--line);overflow:hidden;max-width:520px}
+.pbar>i{display:block;height:100%;background:var(--accent)}
+.cont .go{flex:1 1 180px;min-height:48px;font-size:16px}
+.cont.none h1{font-size:19px}
+
+.tools{display:flex;flex-direction:column;gap:10px}
+.search{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.search input{flex:1 1 260px;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--line2);border-radius:4px;background:var(--card);font-size:16px}
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.fbtn{min-height:44px;padding:6px 16px;border-radius:4px;border:1px solid var(--line);background:var(--card);color:var(--ink2);font-size:14px;cursor:pointer}
+.fbtn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.count{font-size:13px;color:var(--muted);margin:0}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}
+.bcard{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.bcard.lib{background:#FCFCFD}
+.gchip{align-self:flex-start;padding:3px 8px;border-radius:3px;font-size:12px;font-weight:700}
+.bcard h2{margin:0;font-size:17px;line-height:1.35}
+.bcard .n{font-size:13px;color:var(--muted)}
+.alist{display:flex;flex-direction:column;gap:8px}
+.alink{min-height:44px;padding:8px 12px;border-radius:4px;border:1px solid var(--line);background:var(--soft);color:var(--ink);text-decoration:none;font-size:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 10px}
+.alink:hover{border-color:var(--accent)}
+.alink .st{font-size:13px;font-weight:700}
+.st.doing{color:#1E40AF}.st.done{color:var(--okink)}.st.new{color:var(--muted);font-weight:400}
+.audio{min-height:44px;padding:8px 12px;border-radius:4px;border:1px solid var(--line2);background:var(--card);color:var(--ink);text-decoration:none;font-size:14px;display:flex;align-items:center;gap:8px}
+.audio svg{flex:none}
+.empty{background:var(--card);border:1px dashed var(--line2);border-radius:6px;padding:16px;color:var(--muted)}
+.foot{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
+
+@media (max-width:560px){
+  .top-in{padding:12px 14px;gap:10px}
+  .mark{width:36px;height:36px;font-size:15px}
+  .brand .t{font-size:16px}
+  main{padding:14px;gap:14px}
+  .cont{padding:16px}
+  .cont h1{font-size:19px}
+  .bcard{padding:14px}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="mark" aria-hidden="true">Aa</div>
+    <div class="brand"><div class="t" id="hub-title"></div><div class="s" id="hub-sub"></div></div>
+    <div class="voice" data-testid="voice-status" id="voice" aria-live="polite"></div>
+    <p class="vhint" id="vhint" hidden></p>
+  </div>
+</header>
+<main>
+  <div class="demo" id="demo-banner" role="note" hidden>DỮ LIỆU MINH HOẠ — danh mục app trên trang này chỉ để thử giao diện.</div>
+  <section class="cont" data-testid="continue-card" id="cont" aria-label="Học tiếp"></section>
+  <div class="tools">
+    <div class="search"><label for="q" class="sr">Tìm app</label><input id="q" type="search" placeholder="Tìm theo sách, Unit hoặc tên app" autocomplete="off" enterkeyhint="search">
+      <button type="button" class="btn" id="lib-toggle" aria-pressed="true">Ẩn sách chưa có app</button></div>
+    <nav class="filters" id="filters" aria-label="Lọc theo bộ sách"></nav>
+    <p class="count" id="count" role="status"></p>
+  </div>
+  <div class="grid" id="grid"></div>
+  <p class="foot" id="foot">Tiến độ lưu trên từng thiết bị. Giọng đọc dùng giọng có sẵn của trình duyệt, ưu tiên giọng US tốt nhất của từng loại máy và bỏ giọng kiểu robot; bấm "Đổi giọng" để tự chọn. Thiếu giọng nào thì nút giọng đó tự ẩn và app hiện hướng dẫn cài thêm. Âm thanh gốc của Effortless English mở từ Google Drive, không tải lên GitHub.</p>
+</main>
+<script type="application/json" id="hub-data">{"hub":{"title":"Góc tự học tiếng Anh","subtitle":"App học từ “35. Học tiếng Anh” và “EffortlessEnglish” · trang riêng"},"apps":[],"library":[{"book":"Academic Vocabulary in Use (2nd edition)","series":"Academic Vocabulary in Use","audio_links":[],"group":"Vocabulary"},{"book":"English Vocabulary in Use - Elementary (3rd edition)","series":"English Vocabulary in Use","audio_links":[],"group":"Vocabulary"},{"book":"English Vocabulary in Use - Pre-intermediate and Intermediate (4th edition)","series":"English Vocabulary in Use","audio_links":[],"group":"Vocabulary"},{"book":"English Vocabulary in Use - Upper-intermediate (4th edition)","series":"English Vocabulary in Use","audio_links":[],"group":"Vocabulary"},{"book":"English Vocabulary in Use - Advanced (3rd edition)","series":"English Vocabulary in Use","audio_links":[],"group":"Vocabulary"},{"book":"Business Vocabulary in Use - Elementary to Pre-intermediate (2nd edition)","series":"Business Vocabulary in Use","audio_links":[],"group":"Business"},{"book":"Business Vocabulary in Use - Intermediate (3rd edition)","series":"Business Vocabulary in Use","audio_links":[],"group":"Business"},{"book":"Business Vocabulary in Use - Advanced (3rd edition)","series":"Business Vocabulary in Use","audio_links":[],"group":"Business"},{"book":"English Idioms in Use - Intermediate (2nd edition)","series":"English Idioms in Use","audio_links":[],"group":"Idioms"},{"book":"English Idiom in Use - Advanced (2nd edition)","series":"English Idiom in Use","audio_links":[],"group":"Idioms"},{"book":"English Pronunciation in Use - Elementary (1st edition)","series":"English Pronunciation in Use","audio_links":[],"group":"Pronunciation"},{"book":"English Pronunciation in Use - Intermediate (1st edition)","series":"English Pronunciation in Use","audio_links":[],"group":"Pronunciation"},{"book":"English Pronunciation in Use - Advanced (1st edition)","series":"English Pronunciation in Use","audio_links":[],"group":"Pronunciation"},{"book":"Essential Grammar in Use (4th edition)","series":"Essential Grammar in Use","audio_links":[],"group":"Grammar"},{"book":"English Grammar in Use (5th edition)","series":"English Grammar in Use","audio_links":[],"group":"Grammar"},{"book":"Advanced Grammar in Use (4th edition)","series":"Advanced Grammar in Use","audio_links":[],"group":"Grammar"},{"book":"English Collocations in Use - Intermediate (2nd edition)","series":"English Collocations in Use","audio_links":[],"group":"Collocations"},{"book":"English Collocations in Use - Advanced (2nd edition)","series":"English Collocations in Use","audio_links":[],"group":"Collocations"},{"book":"English Phrasal Verbs in Use - Intermediate (2nd edition)","series":"English Phrasal Verbs in Use","audio_links":[],"group":"Phrasal Verbs"},{"book":"English Phrasal Verbs in Use - Advanced (2nd edition)","series":"English Phrasal Verbs in Use","audio_links":[],"group":"Phrasal Verbs"},{"book":"Oxford Word Skills - Elementary (2nd edition)","series":"Oxford Word Skills","audio_links":[],"group":"Oxford Word Skills"},{"book":"Oxford Word Skills - Intermediate (2nd edition)","series":"Oxford Word Skills","audio_links":[],"group":"Oxford Word Skills"},{"book":"Oxford Word Skills - Upper-intermediate and Advanced (2nd edition)","series":"Oxford Word Skills","audio_links":[],"group":"Oxford Word Skills"},{"book":"Merriam-Webster's Visual Dictionary","series":"Merriam-Webster's Visual Dictionary","audio_links":[],"group":"Từ điển hình"},{"book":"Oxford Picture Dictionary","series":"Oxford Picture Dictionary","audio_links":[],"group":"Từ điển hình"},{"book":"Longman Photo Dictionary","series":"Longman Photo Dictionary","audio_links":[],"group":"Từ điển hình"},{"book":"Original Effortless English Lesson","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/15Bf_0Q52Mz7TYRyTvquEZSNsW00T5Rc6"}]},{"book":"Learn Real English","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/1i64qx2L8w18aqaKwNiBAuRJjHE482eYg"}]},{"book":"Flow English Lessons","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/1KVhnpKXyN57bXyyyjX6hm0wxkTv8x0df"}]},{"book":"Business English Lessons","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/1wUKE6iCwJskV2LwQ64EgLXamM2TaOhxC"}]},{"book":"Power English Now","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/1x3Fsc9zrKOyBazQde1em0j_xvDpIl-Ul"}]},{"book":"Ebook _ VIP Global Leadership Program","series":"Effortless English","group":"Effortless English","audio_links":[{"label":"Nghe bản gốc trên Drive","url":"https://drive.google.com/drive/folders/1eNPXByJjc-BuQd4cJT6K-1YQ_es5tiPw"}]}],"groups":["Vocabulary","Grammar","Collocations","Phrasal Verbs","Idioms","Pronunciation","Business","Oxford Word Skills","Từ điển hình","Effortless English","Khác"],"_build":{"stamp":"23/11/2026 18:46"}}</script>
+<script>/* ---- voice.js ---- */
+/* voice.js — mô-đun giọng đọc UK / US / IN dùng chung (app học tiếng Anh + Góc tự học tiếng Anh).
+   Bản 23/11/2026 (bản 2), người dùng chốt: ưu tiên giọng US tốt theo từng loại máy, bỏ giọng robot,
+   có nút chọn giọng và hiện tên giọng đang dùng.
+   Giữ từ bản 1: nạp danh sách giọng qua voiceschanged + thử lại (whenReady), loại giọng tiếng Việt,
+   pitch = 1, tốc độ theo tham số (mặc định 1,0×), thiếu giọng thì available() = false để trang ẩn nút.
+   Đổi so với bản 1: giọng robot (SAPI5 "… Desktop", eSpeak, MacinTalk kiểu Fred/Albert/Zarvox, Eloquence kiểu
+   Eddy/Grandma…) bị bỏ hẳn, không còn dùng làm phương án cuối; xếp giọng theo nhóm chất lượng biết trước của
+   từng loại máy (Edge: Microsoft … Online (Natural); Chrome: Google US/UK English; iPhone/iPad/Mac: giọng
+   Cao cấp/Nâng cao, Samantha…; Android: giọng Google tiếng Anh); người học tự chọn được giọng, lưu trên máy.
+   API: Voice.supported, Voice.LABEL, Voice.NAME, Voice.ORDER (['US','UK','IN']),
+        Voice.speak(text, acc, rate) → Promise, Voice.whenReady() → Promise, Voice.available(acc), Voice.isReady(),
+        Voice.onChange(fn), Voice.onUse(fn(acc, voice)), Voice.stop(),
+        Voice.list(acc) → [{id,name,short,lang,good,local}], Voice.current(acc) → mục như trên | null,
+        Voice.chosen(acc) → true nếu người học tự chọn, Voice.choose(acc, id|null), Voice.robots(acc) → số giọng robot đã bỏ,
+        Voice.preferred() → giọng ưu tiên (US nếu có), Voice.lastAcc(), Voice.device(), Voice.hint(),
+        Voice.openPicker({opener}), Voice.closePicker().   acc ∈ 'UK' | 'US' | 'IN'.
+   Khung HTML chèn file này tại chỗ đánh dấu bằng kh_common.inject_js. Cú pháp chạy được trên iOS Safari 14. */
+var Voice=(function(){
+  var supported=('speechSynthesis' in window)&&!!window.speechSynthesis&&(typeof window.SpeechSynthesisUtterance!=='undefined');
+  var ACC={UK:'en-gb',US:'en-us',IN:'en-in'};
+  var LABEL={UK:'🇬🇧 UK',US:'🇺🇸 US',IN:'🇮🇳 IN'};
+  var NAME={US:'Giọng Mỹ (US)',UK:'Giọng Anh (UK)',IN:'Giọng Ấn Độ (IN)'};
+  var ORDER=['US','UK','IN'];
+  var SAMPLE='This is how this voice sounds.';
+  var voices=[], ready=false, readyPromise=null, listeners=[], useListeners=[], mem={}, last=null;
+
+  /* ---------- loại máy ---------- */
+  var DEVICE=(function(){
+    var ua=String((window.navigator&&navigator.userAgent)||''), tp=(window.navigator&&navigator.maxTouchPoints)||0;
+    if(/iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && tp>1)) return 'ios';
+    if(/Android/i.test(ua)) return 'android';
+    if(/CrOS/i.test(ua)) return 'chromeos';
+    if(/Windows/i.test(ua)) return 'windows';
+    if(/Macintosh|Mac OS X/i.test(ua)) return 'mac';
+    if(/Linux/i.test(ua)) return 'linux';
+    return 'khac';
+  })();
+  var BROWSER=(function(){
+    var ua=String((window.navigator&&navigator.userAgent)||'');
+    if(/Edg\//.test(ua)) return 'Edge';
+    if(/CriOS|Chrome\//.test(ua)) return 'Chrome';
+    if(/FxiOS|Firefox\//.test(ua)) return 'Firefox';
+    if(/Safari\//.test(ua)) return 'Safari';
+    return '';
+  })();
+  var DEVICE_NAME={ios:'iPhone/iPad',android:'Android',chromeos:'Chromebook',windows:'Windows',mac:'Mac',linux:'Linux',khac:'máy này'};
+
+  /* ---------- nhận diện giọng ---------- */
+  function baseName(v){ return String(v.name||'').replace(/\s*\(.*$/,'').replace(/\s+-\s+.*$/,'').trim(); }
+  function isVi(v){ return /^vi/i.test(v.lang||'') || /vietnam|tiếng việt/i.test(v.name||''); }
+  /* giọng robot: tổng hợp đời cũ hoặc giọng vui của Apple — bỏ hẳn */
+  var ROBOT_NAMES=/^(albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|pipe organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph|princess|deranged|hysterical|bruce|agnes|vicki|victoria|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley)$/i;
+  function isRobot(v){
+    var n=String(v.name||''), u=String(v.voiceURI||'');
+    if(/SAPI|\bDesktop\b/i.test(n+' '+u)) return true;                 /* Microsoft … Desktop (SAPI5) */
+    if(/e-?speak|mbrola|festival|\bflite\b|\bpico\b|svox/i.test(n+' '+u)) return true;
+    if(/^Microsoft (Sam|Mike|Mary|Anna)\b/i.test(n)) return true;      /* giọng Windows XP/Vista */
+    if(/com\.apple\.eloquence/i.test(u)) return true;                   /* Eloquence trên iPhone/Mac */
+    return ROBOT_NAMES.test(baseName(v));
+  }
+  var APPLE_GOOD=/^(samantha|alex|ava|allison|susan|tom|zoe|evan|nathan|joelle|noelle|nicky|aaron|daniel|kate|serena|stephanie|jamie|oliver|arthur|martha|rishi|veena|isha|sangeeta)$/i;
+  /* nhóm chất lượng (≥ 600 = tốt, dưới = thường); mỗi họ giọng chỉ có trên một số loại máy */
+  function tier(v){
+    var n=String(v.name||''), u=String(v.voiceURI||''), b=baseName(v);
+    if(/\(Premium\)/i.test(n) || /\.premium\./i.test(u)) return 900;            /* Apple Cao cấp */
+    if(/^Microsoft .*Online \(Natural\)/i.test(n)) return 880;                   /* Edge, mọi máy */
+    if(/\(Natural\)|Neural/i.test(n)) return 860;                                /* Windows 11 Natural */
+    if(/\(Enhanced\)/i.test(n) || /\.enhanced\./i.test(u)) return 850;          /* Apple Nâng cao */
+    if(/^Google /i.test(n)) return 800;                                          /* Chrome (cần mạng) */
+    if(DEVICE==='android') return /network/i.test(n+' '+u) ? 800 : 700;         /* Google TTS trên Android */
+    if(APPLE_GOOD.test(b) && !/^(Microsoft|Google)\b/i.test(n)) return 700;      /* Apple thường: Samantha, Daniel… */
+    if(/^Chrome OS /i.test(n)) return 700;
+    if(/^Microsoft /i.test(n)) return 300;                                       /* Windows David/Zira/Heera… */
+    return 200;
+  }
+  var FAV={US:/^(Microsoft (Ava|Andrew|Emma|Brian|Aria|Jenny)\b|Ava\b|Zoe\b|Samantha\b|Google US English)/i,
+           UK:/^(Microsoft (Sonia|Ryan|Libby)\b|Daniel\b|Serena\b|Kate\b|Jamie\b|Google UK English Female)/i,
+           IN:/^(Microsoft (Neerja|Prabhat)\b|Isha\b|Rishi\b|Veena\b)/i};
+  function score(v,acc){ return tier(v)+(FAV[acc]&&FAV[acc].test(v.name||'')?10:0)+(v.localService?3:0)+(v['default']?1:0); }
+  function idOf(v){ return String(v.voiceURI||v.name||''); }
+  function shortName(v){
+    var n=String(v.name||'').replace(/\s+-\s+(English|Tiếng Anh).*$/i,'').replace(/^Microsoft\s+/i,'')
+      .replace(/\s+Online\s+\(Natural\)/i,' (Natural)').replace(/\s*\((English|Tiếng Anh)\s*\([^)]*\)\)\s*$/i,'');
+    n=n.replace(/\s+/g,' ').trim();
+    return n || String(v.name||'') || 'giọng không tên';
+  }
+  function langOf(v){ return String(v.lang||'').replace('_','-').toLowerCase(); }
+  function load(){ if(!supported) return; try{ voices=(window.speechSynthesis.getVoices()||[]).filter(function(v){ return !isVi(v); }); }catch(e){ voices=[]; } }
+  function candidates(acc){
+    var want=ACC[acc]; if(!want) return [];
+    var c=voices.filter(function(v){ return langOf(v)===want && !isRobot(v); });
+    c.sort(function(a,b){ return score(b,acc)-score(a,acc); });
+    return c;
+  }
+  function info(v){ return v?{id:idOf(v),name:String(v.name||''),short:shortName(v),lang:v.lang,good:tier(v)>=600,local:!!v.localService}:null; }
+
+  /* ---------- lựa chọn của người học (lưu trên máy; bị chặn lưu thì giữ trong bộ nhớ) ---------- */
+  function getChoice(acc){ try{ var x=window.localStorage.getItem('ecb:voice:'+acc); if(x!==null) return x; }catch(e){} return mem[acc]||''; }
+  function setChoice(acc,id){ mem[acc]=id||''; try{ if(id) window.localStorage.setItem('ecb:voice:'+acc,id); else window.localStorage.removeItem('ecb:voice:'+acc); }catch(e){} }
+  function pick(acc){
+    var c=candidates(acc); if(!c.length) return null;
+    var id=getChoice(acc);
+    if(id){ for(var i=0;i<c.length;i++){ if(idOf(c[i])===id) return c[i]; } }
+    return c[0];
+  }
+
+  /* ---------- nạp danh sách giọng ---------- */
+  function whenReady(){
+    if(!supported) return Promise.resolve();
+    if(readyPromise) return readyPromise;
+    readyPromise=new Promise(function(resolve){
+      var tries=0;
+      function check(){ load(); if(voices.length||tries>=20){ ready=true; resolve(); notify(); } else { tries++; setTimeout(check,150); } }
+      try{ window.speechSynthesis.addEventListener('voiceschanged', function(){ load(); if(voices.length) ready=true; notify(); }); }catch(e){}
+      check();
+    });
+    return readyPromise;
+  }
+  function notify(){ listeners.forEach(function(f){ try{ f(); }catch(e){} }); if(picker) paintPicker(); }
+  function notifyUse(acc,v){ useListeners.forEach(function(f){ try{ f(acc,info(v)); }catch(e){} }); }
+
+  /* ---------- đọc ---------- */
+  var currentTimer=null;
+  function say(text, v, rate, acc, retry){
+    return new Promise(function(resolve){
+      try{ window.speechSynthesis.cancel(); }catch(e){}
+      var u=new window.SpeechSynthesisUtterance(text);
+      u.voice=v; u.lang=v.lang; u.pitch=1; u.rate=rate||1;
+      var done=false;
+      function fin(){ if(!done){ done=true; if(currentTimer) clearTimeout(currentTimer); resolve(); } }
+      u.onend=fin;
+      u.onerror=function(ev){
+        var why=ev&&ev.error;
+        /* giọng cần mạng (Google, Microsoft Online) mà mất mạng: thử một lần với giọng kế tiếp của accent đó */
+        if(!done && retry && why!=='interrupted' && why!=='canceled'){
+          var c=candidates(acc), i=0; for(;i<c.length;i++){ if(c[i]===v) break; }
+          var next=c[i+1];
+          if(next){ done=true; if(currentTimer) clearTimeout(currentTimer); last=acc; notifyUse(acc,next); say(text,next,rate,acc,false).then(resolve); return; }
+        }
+        fin();
+      };
+      currentTimer=setTimeout(fin, 3000+text.length*120);
+      try{ window.speechSynthesis.speak(u); }catch(e){ fin(); }
+    });
+  }
+  function speak(text, acc, rate){
+    if(!supported) return Promise.resolve();
+    return whenReady().then(function(){
+      var v=pick(acc); if(!v) return;
+      last=acc; notifyUse(acc,v);
+      return say(text,v,rate,acc,true);
+    });
+  }
+  function available(acc){ return supported && !!pick(acc); }
+  function preferred(){ for(var i=0;i<ORDER.length;i++){ if(available(ORDER[i])) return ORDER[i]; } return null; }
+  function hint(){
+    if(DEVICE==='ios') return 'Muốn giọng tự nhiên hơn: Cài đặt › Trợ năng › Nội dung được đọc › Giọng nói › Tiếng Anh, tải giọng có chữ "Nâng cao" hoặc "Cao cấp" (ví dụ Ava, Zoe), rồi mở lại trang.';
+    if(DEVICE==='mac') return 'Muốn giọng tự nhiên hơn: Cài đặt hệ thống › Trợ năng › Nội dung được đọc › Giọng hệ thống › Quản lý giọng, tải giọng "Nâng cao" hoặc "Cao cấp" (ví dụ Ava, Zoe), rồi mở lại trang.';
+    if(DEVICE==='windows') return BROWSER==='Edge' ? 'Trên Edge, các giọng có chữ "Natural" là giọng tự nhiên nhất (cần có mạng).'
+      : 'Giọng tự nhiên nhất trên Windows là giọng "Natural" của Microsoft: mở trang bằng Edge. Trên Chrome, giọng Google US/UK cần có mạng.';
+    if(DEVICE==='android') return 'Muốn thêm giọng: Cài đặt › Hỗ trợ tiếp cận › Chuyển văn bản thành giọng nói › Công cụ của Google › tải giọng tiếng Anh (Mỹ, Anh, Ấn Độ).';
+    return 'Muốn thêm giọng: mở trang bằng Chrome, Edge hoặc Safari bản mới.';
+  }
+
+  /* ---------- hộp chọn giọng ---------- */
+  var picker=null, pickerOpener=null, pickerKey=null;
+  var CSS='.vc-ov{position:fixed;left:0;top:0;right:0;bottom:0;z-index:1000;background:rgba(17,24,39,.55);overflow-y:auto;-webkit-overflow-scrolling:touch;'+
+    'display:flex;justify-content:center;align-items:flex-start;padding:16px 10px;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom))}'+
+    '.vc-dlg{width:100%;max-width:600px;background:var(--card,#fff);color:var(--ink,#111827);border:1px solid var(--line,#E5E7EB);border-radius:6px;padding:14px 14px 16px;'+
+    'font:15px/1.5 Arimo,Arial,"Helvetica Neue",sans-serif;overflow-wrap:anywhere;box-shadow:0 10px 30px rgba(0,0,0,.25)}'+
+    '.vc-head{display:flex;align-items:center;justify-content:space-between;gap:8px}'+
+    '.vc-head h2{margin:0;font-size:19px;line-height:1.3}'+
+    '.vc-btn{min-height:44px;min-width:44px;padding:6px 12px;border:1px solid var(--line2,#D1D5DB);border-radius:4px;background:var(--card,#fff);color:var(--ink,#111827);'+
+    'font:inherit;font-size:15px;line-height:1.25;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:left;overflow-wrap:anywhere}'+
+    '.vc-btn[aria-pressed=true]{background:var(--accent,#1D4ED8);border-color:var(--accent,#1D4ED8);color:var(--accent-ink,#fff);font-weight:700}'+
+    '.vc-x{flex:none;font-size:22px;line-height:1;padding:0}'+
+    '.vc-meta{margin:6px 0 0;font-size:13px;color:var(--muted,#4B5563)}'+
+    '.vc-sec{border-top:1px solid var(--line,#E5E7EB);margin-top:12px;padding-top:10px}'+
+    '.vc-sec h3{margin:0 0 2px;font-size:16px}'+
+    '.vc-now{margin:0 0 8px;font-size:14px;color:var(--ink2,#374151)}'+
+    '.vc-list{display:flex;flex-wrap:wrap;gap:8px}'+
+    '.vc-tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 6px;border-radius:3px;background:var(--chip,#F3F4F6);color:var(--ink2,#374151)}'+
+    '.vc-btn[aria-pressed=true] .vc-tag{background:rgba(255,255,255,.2);color:inherit}'+
+    '.vc-tag.ok{background:var(--okbg,#DCFCE7);color:var(--oktext,var(--okink,#14532D))}'+
+    '.vc-none{margin:0;font-size:14px;color:var(--muted,#4B5563)}'+
+    '.vc-auto{margin-top:8px}'+
+    '.vc-hint{margin:12px 0 0;font-size:13px;color:var(--muted,#4B5563)}'+
+    '.vc-foot{display:flex;justify-content:flex-end;margin-top:12px}'+
+    '.vc-done{background:var(--accent,#1D4ED8);border-color:var(--accent,#1D4ED8);color:var(--accent-ink,#fff);font-weight:700}';
+  function el(tag, attrs, kids){
+    var e=document.createElement(tag);
+    if(attrs){ for(var k in attrs){ if(!Object.prototype.hasOwnProperty.call(attrs,k)) continue; var v=attrs[k];
+      if(v===null||v===undefined||v===false) continue;
+      if(k==='class') e.className=v; else if(k==='text') e.textContent=v;
+      else if(k.slice(0,2)==='on' && typeof v==='function') e.addEventListener(k.slice(2),v);
+      else e.setAttribute(k, v===true?'':String(v)); } }
+    (kids||[]).forEach(function(c){ if(c!==null&&c!==undefined&&c!=='') e.appendChild(typeof c==='string'?document.createTextNode(c):c); });
+    return e;
+  }
+  function ensureCss(){
+    if(document.getElementById('vc-style')) return;
+    var s=document.createElement('style'); s.id='vc-style'; s.textContent=CSS; (document.head||document.documentElement).appendChild(s);
+  }
+  function paintPicker(){
+    if(!picker) return;
+    var body=picker.querySelector('.vc-body'), ae=document.activeElement, keep=null;
+    if(ae && body.contains(ae)) keep={acc:ae.getAttribute('data-acc'),id:ae.getAttribute('data-voice-id'),auto:/vc-auto/.test(ae.className)};
+    while(body.firstChild) body.removeChild(body.firstChild);
+    paintBody(body);
+    if(keep){   /* giữ chỗ đang bấm sau khi vẽ lại (bàn phím, trình đọc màn hình) */
+      var sel=keep.id!==null ? '.vc-opt[data-acc="'+keep.acc+'"]' : null, f=null;
+      if(sel){ var bs=body.querySelectorAll(sel); for(var i=0;i<bs.length;i++){ if(bs[i].getAttribute('data-voice-id')===keep.id) f=bs[i]; } }
+      if(!f && keep.acc){ f=body.querySelector('.vc-opt[data-acc="'+keep.acc+'"][aria-pressed="true"]'); }
+      if(f){ try{ f.focus(); }catch(e){} }
+    }
+  }
+  function paintBody(body){
+    if(!supported){ body.appendChild(el('p',{class:'vc-none',text:'Trình duyệt này không hỗ trợ đọc giọng.'})); return; }
+    if(!ready){ body.appendChild(el('p',{class:'vc-none',text:'Đang dò giọng trên máy này…'})); return; }
+    ORDER.forEach(function(acc){
+      var list=candidates(acc), cur=pick(acc), mine=!!getChoice(acc) && cur && idOf(cur)===getChoice(acc);
+      var sec=el('section',{class:'vc-sec','data-acc':acc},[ el('h3',{text:NAME[acc]}) ]);
+      if(!list.length){
+        var rb=robots(acc);
+        sec.appendChild(el('p',{class:'vc-none',text:'Máy này chưa có giọng '+acc+' dùng được'+(rb?' (chỉ có giọng kiểu robot, đã bỏ)':'')+': nút '+acc+' trong bài được ẩn.'}));
+        body.appendChild(sec); return;
+      }
+      sec.appendChild(el('p',{class:'vc-now','data-testid':'voice-now-'+acc},[ 'Đang dùng: ', el('strong',{text:shortName(cur)}), mine?' · bạn chọn':' · máy tự chọn giọng tốt nhất' ]));
+      var box=el('div',{class:'vc-list',role:'group','aria-label':NAME[acc]});
+      list.forEach(function(v){
+        var on=(v===cur);
+        box.appendChild(el('button',{type:'button',class:'vc-btn vc-opt','data-acc':acc,'data-voice-id':idOf(v),'aria-pressed':on?'true':'false',
+          'aria-label':'Chọn '+shortName(v)+' cho '+NAME[acc]+' và nghe thử',
+          onclick:function(){ setChoice(acc,idOf(v)); notify(); last=acc; notifyUse(acc,v); say(SAMPLE,v,1,acc,false); }},
+          [ shortName(v)+' ', el('span',{class:'vc-tag'+(tier(v)>=600?' ok':''),text:tier(v)>=600?'tốt':'thường'}) ]));
+      });
+      sec.appendChild(box);
+      if(mine) sec.appendChild(el('button',{type:'button',class:'vc-btn vc-auto','data-acc':acc,text:'Để máy tự chọn giọng tốt nhất',
+        onclick:function(){ setChoice(acc,null); notify(); }}));
+      body.appendChild(sec);
+    });
+    var rbAll=ORDER.reduce(function(s,a){ return s+robots(a); },0);
+    body.appendChild(el('p',{class:'vc-hint',text:(rbAll?'Đã bỏ '+rbAll+' giọng kiểu robot của máy. ':'')+hint()}));
+  }
+  function onKey(e){ if(e.key==='Escape'||e.key==='Esc'){ e.preventDefault(); closePicker(); } }
+  function openPicker(opts){
+    if(picker) return;
+    ensureCss();
+    pickerOpener=(opts&&opts.opener)||document.activeElement||null;
+    var closeBtn=el('button',{type:'button',class:'vc-btn vc-x','aria-label':'Đóng hộp chọn giọng',text:'×',onclick:function(){ closePicker(); }});
+    var dlg=el('div',{class:'vc-dlg',role:'dialog','aria-modal':'true','aria-labelledby':'vc-title','data-testid':'voice-picker'},[
+      el('div',{class:'vc-head'},[ el('h2',{id:'vc-title',text:'Chọn giọng đọc'}), closeBtn ]),
+      el('p',{class:'vc-meta',text:'Máy: '+DEVICE_NAME[DEVICE]+(BROWSER?' · '+BROWSER:'')+'. Bấm một giọng để chọn và nghe thử; lựa chọn được lưu trên máy này.'}),
+      el('div',{class:'vc-body'}),
+      el('div',{class:'vc-foot'},[ el('button',{type:'button',class:'vc-btn vc-done',text:'Xong',onclick:function(){ closePicker(); }}) ])
+    ]);
+    picker=el('div',{class:'vc-ov',onclick:function(e){ if(e.target===picker) closePicker(); }},[ dlg ]);
+    document.body.appendChild(picker);
+    document.addEventListener('keydown',onKey);
+    paintPicker();
+    if(!ready) whenReady().then(paintPicker);
+    try{ closeBtn.focus(); }catch(e){}
+  }
+  function closePicker(){
+    if(!picker) return;
+    document.removeEventListener('keydown',onKey);
+    if(picker.parentNode) picker.parentNode.removeChild(picker);
+    picker=null;
+    /* trang có thể đã vẽ lại nút mở hộp (ví dụ trang tổng tiếng Anh): tìm lại nút cùng mã */
+    if(pickerOpener && document.body && !document.body.contains(pickerOpener) && pickerOpener.getAttribute){
+      var t=pickerOpener.getAttribute('data-testid'), id=pickerOpener.id;
+      pickerOpener=t?document.querySelector('[data-testid="'+t+'"]'):(id?document.getElementById(id):null);
+    }
+    if(pickerOpener && pickerOpener.focus){ try{ pickerOpener.focus(); }catch(e){} }
+    pickerOpener=null;
+  }
+  function robots(acc){ var want=ACC[acc]; return voices.filter(function(v){ return langOf(v)===want && isRobot(v); }).length; }
+
+  return {
+    supported:supported, LABEL:LABEL, NAME:NAME, ORDER:ORDER, speak:speak, whenReady:whenReady,
+    available:available,
+    isReady:function(){ return ready; },
+    onChange:function(f){ listeners.push(f); },
+    onUse:function(f){ useListeners.push(f); },
+    stop:function(){ try{ if(supported) window.speechSynthesis.cancel(); }catch(e){} },
+    list:function(acc){ return candidates(acc).map(info); },
+    current:function(acc){ return info(pick(acc)); },
+    chosen:function(acc){ var v=pick(acc); return !!v && !!getChoice(acc) && idOf(v)===getChoice(acc); },
+    choose:function(acc,id){ if(!ACC[acc]) return; setChoice(acc,id||null); notify(); },
+    robots:robots, preferred:preferred,
+    lastAcc:function(){ return (last && available(last)) ? last : preferred(); },
+    device:function(){ return DEVICE; }, hint:hint, shortName:function(v){ return v?shortName(v):''; },
+    openPicker:openPicker, closePicker:closePicker
+  };
+})();
+
+</script>
+<script>
+(function () {
+  'use strict';
+  var DATA = {};
+  try { DATA = JSON.parse(document.getElementById('hub-data').textContent) || {}; } catch (e) { DATA = {}; }
+  var HUB = DATA.hub || {}, APPS = Array.isArray(DATA.apps) ? DATA.apps : [], LIB = Array.isArray(DATA.library) ? DATA.library : [];
+  var GROUPS = Array.isArray(DATA.groups) ? DATA.groups : [];
+  var COLORS = { 'Vocabulary': ['#DBEAFE', '#1E40AF'], 'Grammar': ['#F3F4F6', '#374151'], 'Collocations': ['#CCFBF1', '#115E59'],
+    'Phrasal Verbs': ['#FFEDD5', '#9A3412'], 'Idioms': ['#FCE7F3', '#9D174D'], 'Pronunciation': ['#EDE9FE', '#5B21B6'],
+    'Business': ['#E0E7FF', '#3730A3'], 'Oxford Word Skills': ['#DBEAFE', '#1E40AF'], 'Từ điển hình': ['#ECFCCB', '#3F6212'],
+    'Effortless English': ['#FEF3C7', '#92400E'], 'Khác': ['#F3F4F6', '#374151'] };
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') e.className = v; else if (k === 'text') e.textContent = v;
+      else if (k.slice(0, 2) === 'on' && typeof v === 'function') e.addEventListener(k.slice(2), v);
+      else e.setAttribute(k, v === true ? '' : String(v));
+    });
+    (kids || []).forEach(function (c) { if (c !== null && c !== undefined && c !== '') e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function getItem(k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } }
+  function setItem(k, v) { try { window.localStorage.setItem(k, v); } catch (e) { /* */ } }
+  function fold(s) {
+    var t = String(s || '').toLowerCase();
+    if (t.normalize) t = t.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    return t.replace(/đ/g, 'd');
+  }
+  function toMs(v) { if (typeof v === 'number' && isFinite(v)) return v; var t = Date.parse(String(v || '')); return isFinite(t) ? t : 0; }
+  function fmtDate(ms) { var d = new Date(ms); function p(n) { return (n < 10 ? '0' : '') + n; } return p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear(); }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  function icon(paths, size) {
+    var s = document.createElementNS(SVGNS, 'svg');
+    s.setAttribute('width', String(size || 16)); s.setAttribute('height', String(size || 16)); s.setAttribute('viewBox', '0 0 24 24');
+    s.setAttribute('fill', 'none'); s.setAttribute('stroke', 'currentColor'); s.setAttribute('stroke-width', '2.5');
+    s.setAttribute('stroke-linecap', 'round'); s.setAttribute('stroke-linejoin', 'round'); s.setAttribute('aria-hidden', 'true');
+    paths.forEach(function (d) { var p = document.createElementNS(SVGNS, 'path'); p.setAttribute('d', d); s.appendChild(p); });
+    return s;
+  }
+  var I_OK = ['M20 6 9 17l-5-5'], I_NO = ['M18 6 6 18', 'M6 6l12 12'], I_SPK = ['M11 5 6 9H2v6h4l5 4V5z', 'M15.5 8.5a5 5 0 0 1 0 7'],
+      I_HP = ['M3 18v-6a9 9 0 0 1 18 0v6', 'M21 19a2 2 0 0 1-2 2h-1v-6h3z', 'M3 19a2 2 0 0 0 2 2h1v-6H3z'];
+
+  /* ---------- tiến độ app (do app tiếng Anh ghi: ecb:hub:<appId> = {title, done, total, last}) ---------- */
+  function progress(id) {
+    try { var v = JSON.parse(getItem('ecb:hub:' + id) || 'null'); return v && typeof v === 'object' ? v : null; } catch (e) { return null; }
+  }
+  function status(p) {
+    if (!p) return ['new', 'Chưa mở'];
+    var d = Number(p.done) || 0, t = Number(p.total) || 0;
+    if (t > 0 && d >= t) return ['done', 'Đã xong'];
+    return ['doing', 'Đang học' + (t > 0 ? ' · ' + d + '/' + t : '')];
+  }
+  function unitLabel(a) { return a.unit ? (/^\d/.test(a.unit) ? 'Unit ' + a.unit : a.unit) : (a.title || a.id); }
+
+  /* ---------- giọng đọc ---------- */
+  var speaking = false;
+  function renderVoice() {
+    var box = $('voice'), hint = $('vhint'); clear(box);
+    hint.hidden = true; hint.textContent = '';
+    function setHint(t) { hint.textContent = t; hint.hidden = !t; }
+    box.appendChild(el('span', { class: 'lab', text: 'Giọng đọc trên máy này' }));
+    if (typeof Voice === 'undefined' || !Voice.supported) {
+      box.appendChild(el('span', { class: 'vchip no', text: 'Trình duyệt này không đọc giọng' }));
+      setHint('Các app vẫn dùng bình thường, chỉ không có nút nghe. Thử mở bằng Safari, Chrome hoặc Edge bản mới.');
+      return;
+    }
+    if (!Voice.isReady()) { box.appendChild(el('span', { class: 'vchip wait', text: 'Đang dò giọng…' })); return; }
+    var missing = [];
+    Voice.ORDER.forEach(function (a) {   /* US trước (giọng ưu tiên), rồi UK, IN; hiện tên giọng đang dùng */
+      var cur = Voice.current(a), ok = !!cur;
+      if (!ok) missing.push(a);
+      box.appendChild(el('span', { class: 'vchip ' + (ok ? 'ok' : 'no'), 'data-acc': a, title: ok ? 'Giọng ' + a + ' đang dùng: ' + cur.name : 'Thiết bị này chưa có giọng ' + a },
+        [icon(ok ? I_OK : I_NO, 14), a + (ok ? ' · ' + cur.short : ' chưa có')]));
+    });
+    if (missing.length < 3) {
+      var b = el('button', { type: 'button', class: 'btn', 'data-testid': 'voice-test', disabled: speaking ? true : null }, [icon(I_SPK, 16), speaking ? 'Đang đọc…' : 'Nghe thử']);
+      b.addEventListener('click', testVoices);
+      box.appendChild(b);
+      var pk = el('button', { type: 'button', class: 'btn', 'data-testid': 'voice-pick', 'aria-haspopup': 'dialog' }, ['Đổi giọng']);
+      pk.addEventListener('click', function () { Voice.openPicker({ opener: pk }); });
+      box.appendChild(pk);
+    }
+    if (missing.length) {
+      var robot = missing.filter(function (a) { return Voice.robots(a) > 0; });
+      setHint('Thiếu giọng ' + missing.join(', ') + ': trong app, nút giọng đó sẽ ẩn.' +
+        (robot.length ? ' Máy chỉ có giọng kiểu robot cho ' + robot.join(', ') + ' nên không dùng.' : '') + ' ' + Voice.hint());
+    }
+  }
+  function testVoices() {
+    if (speaking) return;
+    var accs = Voice.ORDER.filter(function (a) { return Voice.available(a); });
+    if (!accs.length) return;
+    speaking = true; renderVoice();
+    var p = Promise.resolve();
+    accs.forEach(function (a) { p = p.then(function () { return Voice.speak('This is the ' + a + ' English voice on this device.', a, 1); }); });
+    p.then(function () { speaking = false; renderVoice(); }, function () { speaking = false; renderVoice(); });
+  }
+
+  /* ---------- học tiếp ---------- */
+  function renderContinue() {
+    var box = $('cont'); clear(box);
+    var best = null, bestT = -1;
+    APPS.forEach(function (a) { var p = progress(a.id); if (p) { var t = toMs(p.last); if (t > bestT) { bestT = t; best = { a: a, p: p }; } } });
+    if (!best) {
+      box.className = 'cont none';
+      box.appendChild(el('div', { class: 'info' }, [el('span', { class: 'kicker', text: 'Học tiếp' }),
+        el('h1', { text: APPS.length ? 'Chưa mở app nào trên máy này' : 'Chưa có app nào' }),
+        el('span', { class: 'muted', text: APPS.length ? 'Chọn một Unit bên dưới để bắt đầu. Lần sau, app học gần nhất sẽ hiện ở đây.' : 'Khi có app học tiếng Anh, danh sách sẽ hiện bên dưới.' })]));
+      return;
+    }
+    box.className = 'cont';
+    var a = best.a, p = best.p, d = Number(p.done) || 0, t = Number(p.total) || 0, st = status(p);
+    var meta = el('div', { class: 'meta' });
+    if (t > 0) meta.appendChild(el('span', { text: 'Đã học ' + d + ' / ' + t }));
+    if (st[0] === 'done') meta.appendChild(el('span', { text: 'Đã xong — mở lại để ôn' }));
+    if (bestT > 0) meta.appendChild(el('span', { text: 'Mở lần cuối ' + fmtDate(bestT) }));
+    var info = el('div', { class: 'info' }, [el('span', { class: 'kicker', text: 'Học tiếp' }),
+      el('h1', { text: a.book + ' · ' + unitLabel(a) }), meta]);
+    if (t > 0) info.appendChild(el('div', { class: 'pbar', role: 'img', 'aria-label': 'Đã học ' + d + ' trên ' + t }, [el('i', { style: 'width:' + Math.min(100, 100 * d / t).toFixed(1) + '%' })]));
+    box.appendChild(info);
+    box.appendChild(el('a', { class: 'btn pri go', href: a.file, 'data-testid': 'continue-open', text: st[0] === 'done' ? 'Ôn lại' : 'Học tiếp' }));
+  }
+
+  /* ---------- lọc + thẻ sách ---------- */
+  var filter = 'Tất cả', query = '', showLib = getItem('ecb-hub:showLibrary') !== '0';
+  function books() {
+    var map = {}, order = [];
+    APPS.forEach(function (a) {
+      var k = a.book;
+      if (!map[k]) { map[k] = { book: k, group: a.group || 'Khác', apps: [], audio: [], last: 0 }; order.push(k); }
+      map[k].apps.push(a);
+      (a.audio_links || []).forEach(function (l) { if (!map[k].audio.some(function (x) { return x.url === l.url; })) map[k].audio.push(l); });
+      var p = progress(a.id); if (p) map[k].last = Math.max(map[k].last, toMs(p.last));
+    });
+    var withApps = order.map(function (k) { return map[k]; });
+    withApps.forEach(function (b) { b.apps.sort(function (x, y) { return String(x.unit).localeCompare(String(y.unit), 'en', { numeric: true }); }); });
+    LIB.forEach(function (b) {   /* sách có app: thêm link nghe bản gốc của thư viện nếu app chưa có */
+      if (!map[b.book]) return;
+      (b.audio_links || []).forEach(function (l) { if (!map[b.book].audio.some(function (x) { return x.url === l.url; })) map[b.book].audio.push(l); });
+    });
+    var lib = LIB.filter(function (b) { return !map[b.book]; }).map(function (b) { return { book: b.book, group: b.group || 'Khác', apps: [], audio: (b.audio_links || []).slice(), last: 0 }; });
+    return { withApps: withApps, lib: lib };
+  }
+  function matches(b) {
+    if (filter !== 'Tất cả' && b.group !== filter) return false;
+    if (!query) return true;
+    var hay = fold([b.book, b.group].concat(b.apps.map(function (a) { return [a.title, a.unit, unitLabel(a), a.series].join(' '); })).join(' '));
+    return query.split(/\s+/).every(function (w) { return hay.indexOf(w) >= 0; });
+  }
+  function chip(g) { var c = COLORS[g] || COLORS['Khác']; return el('span', { class: 'gchip', style: 'background:' + c[0] + ';color:' + c[1], text: g }); }
+  function renderFilters() {
+    var bs = books(), present = {};
+    bs.withApps.concat(showLib ? bs.lib : []).forEach(function (b) { present[b.group] = 1; });
+    var list = ['Tất cả'].concat(GROUPS.filter(function (g) { return present[g]; }));
+    if (list.indexOf(filter) < 0) filter = 'Tất cả';
+    var nav = $('filters'); clear(nav);
+    list.forEach(function (g) {
+      nav.appendChild(el('button', { type: 'button', class: 'fbtn', 'aria-pressed': g === filter ? 'true' : 'false', 'data-group': g, text: g,
+        onclick: function () { filter = g; renderFilters(); renderGrid(); } }));
+    });
+    var t = $('lib-toggle');
+    t.hidden = !LIB.length;
+    t.setAttribute('aria-pressed', showLib ? 'true' : 'false');
+    t.textContent = showLib ? 'Ẩn sách chưa có app' : 'Hiện cả sách chưa có app';
+  }
+  function renderGrid() {
+    var grid = $('grid'); clear(grid);
+    var bs = books(), A = bs.withApps.filter(matches), L = showLib ? bs.lib.filter(matches) : [];
+    A.sort(function (x, y) { return y.last - x.last; });
+    var nApps = 0; A.forEach(function (b) { nApps += b.apps.length; });
+    $('count').textContent = (query || filter !== 'Tất cả') ? ('Thấy ' + nApps + ' app trong ' + A.length + ' sách' + (L.length ? ', thêm ' + L.length + ' sách chưa có app' : '') + '.') : '';
+    if (!A.length && !L.length) {
+      grid.appendChild(el('div', { class: 'empty', text: APPS.length || LIB.length ? 'Không có sách hay app nào khớp với lựa chọn này.' : 'Chưa có app nào.' }));
+      return;
+    }
+    A.forEach(function (b) {
+      var list = el('div', { class: 'alist' });
+      b.apps.forEach(function (a) {
+        var st = status(progress(a.id));
+        list.appendChild(el('a', { class: 'alink', href: a.file, 'data-testid': 'app-link', 'data-app': a.id }, [
+          el('span', { text: unitLabel(a) }), el('span', { class: 'st ' + st[0], text: st[1] })]));
+      });
+      var card = el('article', { class: 'bcard', 'data-testid': 'app-card', 'data-book': b.book }, [chip(b.group), el('h2', { text: b.book }),
+        el('span', { class: 'n', text: b.apps.length + ' app đã tạo' }), list]);
+      b.audio.forEach(function (l) {
+        card.appendChild(el('a', { class: 'audio', href: l.url, target: '_blank', rel: 'noopener' }, [icon(I_HP, 16), l.label || 'Nghe bản gốc trên Drive']));
+      });
+      grid.appendChild(card);
+    });
+    L.forEach(function (b) {
+      var card = el('article', { class: 'bcard lib', 'data-testid': 'book-card', 'data-book': b.book }, [chip(b.group), el('h2', { text: b.book }),
+        el('span', { class: 'n', text: 'Chưa có app' })]);
+      b.audio.forEach(function (l) {
+        card.appendChild(el('a', { class: 'audio', href: l.url, target: '_blank', rel: 'noopener' }, [icon(I_HP, 16), l.label || 'Nghe bản gốc trên Drive']));
+      });
+      grid.appendChild(card);
+    });
+  }
+
+  $('hub-title').textContent = HUB.title || 'Góc tự học tiếng Anh';
+  $('hub-sub').textContent = HUB.subtitle || '';
+  $('demo-banner').hidden = !HUB.demo;
+  if (DATA._build && DATA._build.stamp) $('foot').appendChild(document.createTextNode(' Bản dựng ' + DATA._build.stamp + '.'));
+  $('q').addEventListener('input', function () { query = fold(this.value).trim(); renderGrid(); });
+  $('lib-toggle').addEventListener('click', function () { showLib = !showLib; setItem('ecb-hub:showLibrary', showLib ? '1' : '0'); renderFilters(); renderGrid(); });
+  renderVoice(); renderContinue(); renderFilters(); renderGrid();
+  if (typeof Voice !== 'undefined') { Voice.onChange(renderVoice); Voice.whenReady().then(renderVoice); }
+  window.addEventListener('storage', function (ev) { if (ev && ev.key && ev.key.indexOf('ecb:hub:') === 0) { renderContinue(); renderGrid(); } });
+  window.__HUB_READY__ = true;
+})();
+</script>
+</body>
+</html>
