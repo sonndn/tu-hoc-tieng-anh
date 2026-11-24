@@ -312,6 +312,8 @@ catch(e){ document.getElementById('view').textContent='Không đọc được d�
 
 /* ---------- tiện ích ---------- */
 function h(tag, attrs, kids){
+  /* chốt chặn (bản 3.1): gọi h(tag, [con…]) hoặc h(tag, 'chữ') thì coi đó là phần con, không đặt thành thuộc tính */
+  if(Array.isArray(attrs) || typeof attrs==='string' || (attrs && attrs.nodeType)){ kids = kids===undefined ? attrs : [attrs].concat(kids); attrs=null; }
   var el=document.createElement(tag);
   if(attrs){ for(var k in attrs){ if(!Object.prototype.hasOwnProperty.call(attrs,k)) continue; var v=attrs[k];
     if(v===null||v===undefined||v===false) continue;
@@ -852,7 +854,7 @@ function renderOverview(view){
   var c=h('div',{class:'card'});
   c.appendChild(h('div',{class:'eyebrow',text:'Tổng quan khoá học'}));
   c.appendChild(h('h2',{text:m.title||'Khóa học'}));
-  if(m.book) c.appendChild(h('p',[ 'Sách nguồn: ', h('strong',{text:m.book}) ]));
+  if(m.book) c.appendChild(h('p',{'data-testid':'ov-book'},[ 'Sách nguồn: ', h('strong',{text:m.book}) ]));
   if(src && (src.kind||src.unit)) c.appendChild(h('p',{class:'muted small',text:'Nguồn: '+[KIND[src.kind]||'', src.book&&src.book!==m.book?src.book:'', src.unit||''].filter(function(x){ return x; }).join(' · ')}));
   if(m.level) c.appendChild(h('p',{class:'muted small',text:'Cấp độ: '+m.level}));
   if(m.note) c.appendChild(h('p',{text:m.note}));
